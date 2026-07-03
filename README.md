@@ -16,10 +16,8 @@ nh os switch --update
 ## Notes
 
 - `/etc/nixos` is only used during initial install
-- real config lives in this repo
+- this repo is the source of truth; `nh` applies it to the machine
 - add/remove modules per host via `imports`
-- `system.stateVersion` must be set per machine (do not blindly use the bootstrap value)
-- hostname must match a host entry in the flake (or use `#host` explicitly)
 
 ## Bootstrap (fresh machine)
 
