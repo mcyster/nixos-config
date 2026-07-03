@@ -21,12 +21,6 @@ nh os switch ~/nixos-config
 nh os switch --update
 ```
 
-## Notes
-
-- `/etc/nixos` is only used during initial install
-- this repo is the source of truth; `nh` applies it to the machine
-- add/remove modules per host via `imports`
-
 ## Bootstrap (fresh machine)
 
 From the ISO:
