@@ -15,13 +15,11 @@ modules/dev.nix                  # dev tools
 ## Usage
 
 ```
-# build/switch for this machine (hostname must match)
+# build/switch for this machine
+# uses $HOSTNAME, which must exist as a host in the flake
 nh os switch ~/nixos-config
 
-# explicit host
-nh os switch ~/nixos-config#fox
-
-# update inputs
+# update inputs (pull latest versions) and switch
 nh os switch --update
 ```
 
