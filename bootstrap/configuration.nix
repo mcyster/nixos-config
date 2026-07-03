@@ -1,7 +1,9 @@
 { config, pkgs, ... }:
 
 {
-  networking.hostName = "bootstrap"; # change if you want
+  # IMPORTANT: adjust these per machine before/after install
+  networking.hostName = "bootstrap";
+  system.stateVersion = "25.11";
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
@@ -19,6 +21,10 @@
 
   services.openssh.enable = true;
 
-  # NOTE: adjust this per machine. It should match the original install version.
-  system.stateVersion = "25.11";
+  assertions = [
+    {
+      assertion = config.networking.hostName != "bootstrap";
+      message = "bootstrap hostname must be changed to match a real host";
+    }
+  ];
 }
