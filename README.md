@@ -2,6 +2,14 @@
 
 Single flake repo for all machines.
 
+## Principles
+
+- single flake, not snowflake
+- this repo is the source of truth
+- any machine can be rebuilt from scratch
+- no hidden state
+- small bootstrap boundary (only needed for first install)
+
 ## Usage
 
 ```
