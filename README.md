@@ -2,16 +2,6 @@
 
 Single flake repo for all machines.
 
-## Structure
-
-```
-hosts/<host>/configuration.nix   # machine-specific
-modules/base.nix                 # baseline (currently my.nix)
-modules/desktop.nix              # GUI
-modules/games.nix                # gaming
-modules/dev.nix                  # dev tools
-```
-
 ## Usage
 
 ```
