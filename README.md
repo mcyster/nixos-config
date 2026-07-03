@@ -30,6 +30,8 @@ nh os switch --update
 - `/etc/nixos` is only used during initial install
 - real config lives in this repo
 - add/remove modules per host via `imports`
+- `system.stateVersion` must be set per machine (do not blindly use the bootstrap value)
+- hostname must match a host entry in the flake (or use `#host` explicitly)
 
 ## Bootstrap (fresh machine)
 
@@ -51,4 +53,6 @@ Then after login:
 nix run github:nix-community/nh -- os switch github:mcyster/nixos-config#$(hostname)
 ```
 
-If hostname doesn’t match, replace `$(hostname)` with the correct one (e.g. `fox`).
+Important:
+- After first boot, update `system.stateVersion` in your host config to match the system's original install version
+- Ensure `networking.hostName` matches your intended flake host (or use `#host` when switching)

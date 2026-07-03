@@ -14,9 +14,11 @@
     git
     vim
     nh
+    curl
   ];
 
   services.openssh.enable = true;
 
+  # NOTE: adjust this per machine. It should match the original install version.
   system.stateVersion = "25.11";
 }
