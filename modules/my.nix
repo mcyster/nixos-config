@@ -43,7 +43,7 @@
 
   programs.nh = {
     enable = true;
-    flake = "/etc/nixos";
+    flake = "/home/wal/nixos-config";
   };
 
   programs.direnv = {
