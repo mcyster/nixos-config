@@ -36,12 +36,7 @@
   };
 
   users.users.wal.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII0KTSn9pm04mSnRO/cjJJ2fmF0EVrDefd9ujYDlpDJY opencode-temp-linode"
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMWiPdhC/VTekihutDANEWz+TCoQkuqHawN02aNdwrCE mcyster+fox@gmail.com"
-  ];
-
-  users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII0KTSn9pm04mSnRO/cjJJ2fmF0EVrDefd9ujYDlpDJY opencode-temp-linode"
   ];
 
   system.stateVersion = "26.11";
