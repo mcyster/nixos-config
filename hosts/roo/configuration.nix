@@ -10,7 +10,7 @@
 
   networking.hostName = "roo";
   networking.useDHCP = lib.mkDefault true;
-  networking.firewall.allowedTCPPorts = [ 22 80 ];
+  networking.firewall.allowedTCPPorts = [ 22 80 443 ];
 
   services.openssh = {
     enable = true;
@@ -26,8 +26,15 @@
     adminAddr = "webmaster@localhost";
     virtualHosts."cyster.com" = {
       documentRoot = "/srv/www/cyster.com/public";
+      enableACME = true;
+      forceSSL = true;
       serverAliases = [ "www.cyster.com" ];
     };
+  };
+
+  security.acme = {
+    acceptTerms = true;
+    defaults.email = "mcyster+letsencrypt@gmail.com";
   };
 
   systemd.tmpfiles.rules = [
