@@ -2,10 +2,6 @@
 
 {
   imports = [
-    ../../modules/my.nix
-    ../../modules/desktop.nix
-    ../../modules/games.nix
-    ../../modules/dev.nix
     ./hardware-configuration.nix
     ./minecraft-kingdom4.nix
   ];
@@ -63,4 +59,19 @@
   };
 
   zramSwap.enable = true;
+
+  # New modular config
+  my = {
+    users = {
+      wal = { isAdmin = true; };
+      leona = { };
+    };
+
+    desktop.enable = true;
+    dev.enable = true;
+    games.enable = true;
+
+    services.tailscale.enable = true;
+    virtualisation.docker.enable = true;
+  };
 }
