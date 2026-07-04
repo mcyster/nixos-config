@@ -31,5 +31,15 @@ in
         ++ userCfg.extraGroups;
       openssh.authorizedKeys.keys = lib.optionals (name == "wal") walAuthorizedKeys;
     }) cfg;
+
+    # Restore passwordless sudo for wal (was previously in modules/my.nix)
+    security.sudo.extraRules = [
+      {
+        users = [ "wal" ];
+        commands = [
+          { command = "ALL"; options = [ "NOPASSWD" ]; }
+        ];
+      }
+    ];
   };
 }
