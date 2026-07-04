@@ -2,6 +2,9 @@
 
 let
   cfg = config.my.users;
+  walAuthorizedKeys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMWiPdhC/VTekihutDANEWz+TCoQkuqHawN02aNdwrCE wal@fox"
+  ];
 in
 {
   options.my.users = lib.mkOption {
@@ -26,6 +29,7 @@ in
       extraGroups =
         (if userCfg.isAdmin then [ "wheel" ] else [])
         ++ userCfg.extraGroups;
+      openssh.authorizedKeys.keys = lib.optionals (name == "wal") walAuthorizedKeys;
     }) cfg;
   };
 }
