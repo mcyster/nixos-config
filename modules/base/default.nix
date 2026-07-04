@@ -10,4 +10,9 @@
       HostName 173.255.249.111
       User wal
   '';
+
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
 }
