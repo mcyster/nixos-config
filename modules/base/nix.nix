@@ -14,6 +14,7 @@
     # Restored from old modules/my.nix
     direnv
     opencode
+    cursor-cli
     ripgrep
     btop
     jq
