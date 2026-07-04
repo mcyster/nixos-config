@@ -34,7 +34,6 @@
 
   security.acme = {
     acceptTerms = true;
-    defaults.email = "mcyster+letsencrypt@gmail.com";
   };
 
   systemd.tmpfiles.rules = [
