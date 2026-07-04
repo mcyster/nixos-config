@@ -84,7 +84,7 @@
 
   systemd.services.game1-backup = {
     description = "Back up Plant Collector shared state";
-    unitConfig.ConditionPathIsExecutable = "/srv/game1/current/scripts/game1-backup";
+    unitConfig.ConditionPathIsExecutable = "/srv/game1/current/scripts/g-backup";
     path = with pkgs; [
       bash
       coreutils
@@ -98,7 +98,7 @@
       User = "wal";
       Group = "users";
       WorkingDirectory = "/srv/game1/current";
-      ExecStart = "/srv/game1/current/scripts/game1-backup";
+      ExecStart = "/srv/game1/current/scripts/g-backup";
     };
   };
 
