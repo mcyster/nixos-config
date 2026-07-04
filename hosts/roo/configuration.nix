@@ -21,6 +21,8 @@
     };
   };
 
+  security.sudo.wheelNeedsPassword = false;
+
   environment.systemPackages = with pkgs; [
     curl
     git
@@ -34,6 +36,10 @@
   };
 
   users.users.wal.openssh.authorizedKeys.keys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII0KTSn9pm04mSnRO/cjJJ2fmF0EVrDefd9ujYDlpDJY opencode-temp-linode"
+  ];
+
+  users.users.root.openssh.authorizedKeys.keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII0KTSn9pm04mSnRO/cjJJ2fmF0EVrDefd9ujYDlpDJY opencode-temp-linode"
   ];
 
