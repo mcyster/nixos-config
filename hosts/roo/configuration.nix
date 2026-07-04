@@ -51,7 +51,9 @@
     "d /srv/www/cyster.com 0755 wal users - -"
     "d /srv/www/cyster.com/public 0755 wal users - -"
     "d /srv/game1 0755 wal users - -"
-    "d /srv/game1/instance 0755 wal users - -"
+    "d /srv/game1/releases 0755 wal users - -"
+    "d /srv/game1/shared 0750 wal users - -"
+    "d /srv/game1/shared/instance 0755 wal users - -"
   ];
 
   systemd.services.game1 = {
@@ -59,12 +61,12 @@
     after = [ "network-online.target" ];
     wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
-    unitConfig.ConditionPathExists = "/srv/game1/scripts/wsgi.py";
+    unitConfig.ConditionPathExists = "/srv/game1/current/scripts/wsgi.py";
     serviceConfig = {
       User = "wal";
       Group = "users";
-      WorkingDirectory = "/srv/game1";
-      EnvironmentFile = "/srv/game1/instance/game1.env";
+      WorkingDirectory = "/srv/game1/current";
+      EnvironmentFile = "/srv/game1/shared/game1.env";
       ExecStart = "${pkgs.nix}/bin/nix develop --command gunicorn --bind 127.0.0.1:8001 --workers 2 scripts.wsgi:app";
       Restart = "on-failure";
       RestartSec = 5;
