@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+extole_home="${EXTOLE_HOME:-$HOME/extole}"
+work_user="${WORK_USER:-mcyster}"
+source_dir="$extole_home/etc/nixos"
+target_dir="$repo_root/.private/moa"
+active_dir="/etc/nixos"
+
+if [[ ! -d "$extole_home/.git" || ! -f "$source_dir/extole.nix" ]]; then
+  echo "Extole checkout not found at $extole_home" >&2
+  exit 1
+fi
+
+if [[ ! "$work_user" =~ ^[a-z_][a-z0-9_-]*$ ]]; then
+  echo "Invalid WORK_USER: $work_user" >&2
+  exit 1
+fi
+
+for vpn in dev prod; do
+  module="$active_dir/wireguard-vpn-$vpn.nix"
+  key="/etc/wireguard/vpn-$vpn.key"
+
+  if ! sudo test -f "$module" || ! sudo test -f "$key"; then
+    echo "Missing $module or $key" >&2
+    exit 1
+  fi
+
+  if sudo rg --quiet 'privateKey[[:space:]]*=' "$module"; then
+    echo "$module embeds a private key; refusing to copy it" >&2
+    exit 1
+  fi
+
+  if ! sudo rg --quiet "privateKeyFile[[:space:]]*=[[:space:]]*\"$key\"" "$module"; then
+    echo "$module does not reference $key" >&2
+    exit 1
+  fi
+done
+
+mkdir -p "$target_dir"
+install -m 0600 "$source_dir/extole.nix" "$target_dir/extole.nix"
+perl -pi -e "s/USERNAME/$work_user/g" "$target_dir/extole.nix"
+perl -pi -e 's{#\s*(\./wireguard-vpn-(?:dev|prod)\.nix)}{$1}g' "$target_dir/extole.nix"
+
+for vpn in dev prod; do
+  sudo install -m 0600 -o "$(id -un)" -g "$(id -gn)" \
+    "$active_dir/wireguard-vpn-$vpn.nix" \
+    "$target_dir/wireguard-vpn-$vpn.nix"
+done
+
+extole_revision="$(git -C "$extole_home" rev-parse --short HEAD)"
+echo "Refreshed $target_dir from Extole revision $extole_revision"
+echo "Build with: nh os build path:$repo_root"
