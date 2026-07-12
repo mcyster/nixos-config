@@ -71,7 +71,6 @@
     dev.enable = true;
     games.enable = true;
 
-    services.tailscale.enable = true;
     virtualisation.docker.enable = true;
   };
 }
