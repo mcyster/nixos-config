@@ -11,6 +11,11 @@
       User wal
   '';
 
+  programs.ssh.startAgent = true;
+
+  # Disable GNOME's SSH agent to avoid conflict with programs.ssh.startAgent
+  services.gnome.gcr-ssh-agent.enable = false;
+
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
