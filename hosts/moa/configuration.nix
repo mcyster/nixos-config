@@ -39,7 +39,6 @@ in
       PermitRootLogin = "no";
     };
   };
-  services.gnome.gcr-ssh-agent.enable = true;
 
   services.flatpak.enable = true;
   services.printing.enable = true;

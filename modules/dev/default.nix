@@ -12,6 +12,11 @@ in
       ripgrep
       fd
       neovim
+      sops
+      age
+      ssh-to-age
+      gnupg
+      pass
     ];
   };
 }
