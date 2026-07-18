@@ -5,11 +5,12 @@ Single flake repo for all machines.
 ## Usage
 
 ```
-# build/switch for this machine
-nh os switch ~/nixos-config
-
-# pull latest nixpkgs, build and switch
+# pull latest repo changes, then update and switch
+git -C ~/nixos-config pull
 nh os switch --update ~/nixos-config
+
+# or just rebuild without updating
+nh os switch ~/nixos-config
 ```
 
 ## Bootstrap (fresh machine)
