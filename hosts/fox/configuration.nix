@@ -63,7 +63,10 @@
   # New modular config
   my = {
     users = {
-      wal = { isAdmin = true; };
+      wal = {
+        isAdmin = true;
+        extraGroups = [ "docker" ];
+      };
       leona = { };
     };
 
