@@ -104,6 +104,7 @@ in
   # and add machine-specific groups.
   users.users.mcyster = {
     uid = 1000;
+    isNormalUser = true;
     group = lib.mkForce "users";
     extraGroups = [ "docker" "networkmanager" ];
   };

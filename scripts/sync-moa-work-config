@@ -7,7 +7,9 @@ extole_home="${EXTOLE_HOME:-$HOME/extole}"
 work_user="${WORK_USER:-mcyster}"
 source_dir="$extole_home/etc/nixos"
 target_dir="$repo_root/.private/moa"
-active_dir="/etc/nixos"
+active_dir="${NIXOS_WORK_CONFIG:-/etc/nnn}"
+secrets_repo="${SECRETS_REPO:-$HOME/secrets}"
+wireguard_sync="$secrets_repo/scripts/wireguard-sync"
 
 if [[ ! -d "$extole_home/.git" || ! -f "$source_dir/extole.nix" ]]; then
   echo "Extole checkout not found at $extole_home" >&2
@@ -18,6 +20,13 @@ if [[ ! "$work_user" =~ ^[a-z_][a-z0-9_-]*$ ]]; then
   echo "Invalid WORK_USER: $work_user" >&2
   exit 1
 fi
+
+if [[ ! -x "$wireguard_sync" ]]; then
+  echo "WireGuard secret installer not found: $wireguard_sync" >&2
+  exit 1
+fi
+
+"$wireguard_sync" /etc/wireguard
 
 for vpn in dev prod; do
   module="$active_dir/wireguard-vpn-$vpn.nix"
