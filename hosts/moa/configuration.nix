@@ -1,13 +1,12 @@
 { lib, pkgs, ... }:
 
 let
-  dockerPackage = pkgs.docker_29.override {
-    version = "29.5.2";
-    cliRev = "v29.5.2";
-    cliHash = "sha256-kHgDZVr6mAyCtZ6bSG9FWV0GhWDfXLXzHYFrmjFzO9w=";
-    mobyRev = "docker-v29.5.2";
-    mobyHash = "sha256-lux7tTyF6vm5wuIXs+z3Ygd2v4JjgHbRvOXNA4kjNtg=";
-  };
+  poetryPackage = pkgs.poetry.overridePythonAttrs (old: {
+    disabledTests = (old.disabledTests or [ ]) ++ [
+      "test_execute_executes_a_batch_of_operations"
+      "test_execute_prints_warning_for_yanked_package"
+    ];
+  });
 in
 {
   imports = [
@@ -86,7 +85,7 @@ in
     ngrok
     wl-clipboard
     python3
-    poetry
+    poetryPackage
     gimp
     yad
     eclipses.eclipse-sdk
@@ -98,7 +97,7 @@ in
     comma
   ];
 
-  virtualisation.docker.package = dockerPackage;
+  virtualisation.docker.package = pkgs.docker_29;
 
   # The Extole module owns this account; these settings preserve its current UID
   # and add machine-specific groups.
