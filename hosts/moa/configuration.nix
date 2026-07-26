@@ -23,6 +23,7 @@ in
     canTouchEfiVariables = true;
     efiSysMountPoint = "/boot/efi";
   };
+  boot.kernel.sysctl."fs.aio-max-nr" = 76374;
 
   networking.hostName = "moa";
   networking.networkmanager.enable = true;
