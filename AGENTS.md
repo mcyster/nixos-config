@@ -23,7 +23,7 @@ nh os switch --update ~/nixos-config
 ```sh
 cd ~/nixos-config
 git pull
-nh os switch path:.
+nh os switch --update path:.
 ```
 
 If the Extole checkout (`~/extole`) or VPN config changed, run the sync script
@@ -31,7 +31,7 @@ first:
 
 ```sh
 ./scripts/sync-moa-work-config
-nh os switch path:.
+nh os switch --update path:.
 ```
 
 **Do not** use `nh os switch ~/nixos-config` or `--flake <git-url>#moa` on
@@ -54,6 +54,9 @@ on roo.
 
 - `nh` is the preferred CLI; avoid raw `nixos-rebuild`.
 - Always `git pull` before rebuilding (or use `--update`).
+- `--update` updates flake inputs (i.e. pulls the latest `nixos-unstable`);
+  omitting it rebuilds the pinned `flake.lock` version. When the user says
+  "update the system", use `--update`.
 - On moa, always use `path:` — never a GitHub flake ref.
 - On roo, `--refresh` handles the pull.
 
