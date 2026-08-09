@@ -109,6 +109,8 @@ in
     extraGroups = [ "docker" "networkmanager" ];
   };
 
+  home-manager.users.mcyster = import ../../modules/home/users/mcyster.nix;
+
   services.smartd.enable = true;
   environment.variables.EDITOR = lib.mkForce "vim";
   zramSwap.enable = true;
