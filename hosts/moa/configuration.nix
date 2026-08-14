@@ -91,6 +91,7 @@ in
     yad
     eclipses.eclipse-sdk
     code-cursor
+    claude-code
     mdcat
     zoom-us
     nvd
