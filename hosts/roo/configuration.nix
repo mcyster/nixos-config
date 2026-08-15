@@ -118,5 +118,7 @@
     wal = { isAdmin = true; };
   };
 
+  home-manager.users.wal = import ../../modules/home/users/wal.nix;
+
   system.stateVersion = "26.11";
 }

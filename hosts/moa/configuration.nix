@@ -91,6 +91,7 @@ in
     yad
     eclipses.eclipse-sdk
     code-cursor
+    claude-code
     mdcat
     zoom-us
     nvd
@@ -108,6 +109,8 @@ in
     group = lib.mkForce "users";
     extraGroups = [ "docker" "networkmanager" ];
   };
+
+  home-manager.users.mcyster = import ../../modules/home/users/mcyster.nix;
 
   services.smartd.enable = true;
   environment.variables.EDITOR = lib.mkForce "vim";

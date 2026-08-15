@@ -80,4 +80,6 @@
 
     virtualisation.docker.enable = true;
   };
+
+  home-manager.users.wal = import ../../modules/home/users/wal.nix;
 }
