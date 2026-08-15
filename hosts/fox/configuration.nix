@@ -39,6 +39,10 @@
 
   nixpkgs.config.allowUnfree = true;
 
+  environment.systemPackages = with pkgs; [
+    zed-editor
+  ];
+
 
   services.openssh = {
     enable = true;
