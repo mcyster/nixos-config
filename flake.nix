@@ -21,6 +21,7 @@
               ./modules/home
               ./modules/base
               ./modules/desktop/gnome.nix
+              ./modules/desktop/audio.nix
               ./modules/dev
               ./modules/games
               ./modules/services/tailscale.nix
