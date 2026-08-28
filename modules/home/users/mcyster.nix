@@ -2,6 +2,8 @@
 {
   home.stateVersion = "25.11";
 
+  home.sessionVariables.OWNER = "mark2";
+
   # home-manager owns this list, so new shortcuts belong here rather than in
   # Settings -> Keyboard: anything added there is reverted on the next switch.
   dconf.settings = {

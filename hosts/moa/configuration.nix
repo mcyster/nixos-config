@@ -89,7 +89,7 @@ in
     gimp
     yad
     eclipses.eclipse-sdk
-    code-cursor
+    # code-cursor
     claude-code
     mdcat
     zoom-us
