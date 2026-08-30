@@ -109,7 +109,13 @@ in
     extraGroups = [ "docker" "networkmanager" ];
   };
 
-  home-manager.users.mcyster = import ../../modules/home/users/mcyster.nix;
+  home-manager.users.mcyster = {
+    imports = [ ../../modules/home/users/mcyster.nix ];
+    xdg.configFile."monitors.xml" = {
+      source = ./monitors.xml;
+      force = true;
+    };
+  };
 
   services.smartd.enable = true;
   environment.variables.EDITOR = lib.mkForce "vim";
