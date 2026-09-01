@@ -1,5 +1,7 @@
 { lib, ... }:
 {
+  imports = [ ../claude ];
+
   home.stateVersion = "25.11";
 
   programs.bash.initExtra = lib.mkAfter ''
