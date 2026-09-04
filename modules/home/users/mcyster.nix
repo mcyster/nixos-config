@@ -47,12 +47,12 @@
     }
 
     cd-() {
-      change_directory_by_prefix "''${PROJECT_HOME:-$HOME/extole}" "''${1:-}"
+      change_directory_by_prefix "''${PROJECT_HOME:-$HOME/extole/master}" "''${1:-}"
     }
 
     cdc() {
       local project_name="''${1:-}"
-      local project_code_directory="''${PROJECT_CODE:-$HOME/extole/code}"
+      local project_code_directory="''${PROJECT_CODE:-$HOME/extole/master/code}"
 
       change_directory_by_prefix "$project_code_directory" "$project_name"
     }
