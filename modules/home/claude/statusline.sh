@@ -109,7 +109,25 @@ resolve_active_working_tree() {
     return 0
   done
 }
-resolve_active_working_tree
+resolve_declared_working_tree() {
+  local session_id record recorded=""
+
+  [[ -n "$transcript_path" ]] || return 0
+  session_id="$(basename "$transcript_path")"
+  session_id="${session_id%.jsonl}"
+  [[ -n "$session_id" ]] || return 0
+
+  record="${XDG_CACHE_HOME:-$HOME/.cache}/extole/workspace-by-session/$session_id"
+  [[ -f "$record" ]] || return 0
+  read -r recorded < "$record" || return 0
+  [[ -n "$recorded" && -d "$recorded" ]] || return 0
+
+  active_directory="$recorded"
+  active_branch="$(git -C "$recorded" branch --show-current 2>/dev/null)"
+}
+resolve_declared_working_tree
+
+[[ -n "$active_directory" ]] || resolve_active_working_tree
 
 [[ -n "$active_directory" ]] || active_directory="$current_directory"
 location_label="?"
