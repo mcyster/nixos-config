@@ -37,9 +37,20 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  environment.systemPackages = with pkgs; [
-    zed-editor
-  ];
+  environment.systemPackages =
+    let
+      zed-wrapped = pkgs.symlinkJoin {
+        name = "zed-editor-wrapped";
+        paths = [ pkgs.zed-editor ];
+        nativeBuildInputs = [ pkgs.makeWrapper ];
+        postBuild = ''
+          wrapProgram $out/bin/zeditor --run 'export WAYLAND_DISPLAY="''${WAYLAND_DISPLAY:-wayland-0}"'
+        '';
+      };
+    in
+    [
+      zed-wrapped
+    ];
 
 
   services.openssh = {
