@@ -128,6 +128,43 @@
     };
   };
 
+  systemd.services.roo-auto-upgrade = {
+    description = "Deploy the latest roo configuration from GitHub";
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+    path = [ pkgs.coreutils pkgs.git pkgs.nh ];
+    script = ''
+      set -euo pipefail
+
+      workdir="$(${pkgs.coreutils}/bin/mktemp -d "$STATE_DIRECTORY/work.XXXXXX")"
+      trap '${pkgs.coreutils}/bin/rm -rf "$workdir"' EXIT
+
+      ${pkgs.git}/bin/git clone --depth=1 --single-branch --branch main \
+        https://github.com/mcyster/nixos-config.git "$workdir"
+
+      ${pkgs.nh}/bin/nh os build --update "path:$workdir#roo"
+      ${pkgs.nh}/bin/nh os switch "path:$workdir#roo"
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      StateDirectory = "roo-auto-upgrade";
+      WorkingDirectory = "/var/lib/roo-auto-upgrade";
+      PrivateTmp = true;
+      UMask = "0077";
+      TimeoutStartSec = "1h";
+    };
+  };
+
+  systemd.timers.roo-auto-upgrade = {
+    description = "Daily roo configuration deployment";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "daily";
+      Persistent = true;
+      RandomizedDelaySec = "1h";
+    };
+  };
+
   nix.gc = {
     automatic = true;
     dates = "weekly";

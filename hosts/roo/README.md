@@ -40,6 +40,21 @@ ssh wal@173.255.249.111
 nh os switch --refresh github:mcyster/nixos-config#roo
 ```
 
+`roo` also deploys the latest `main` configuration automatically once per day.
+The service clones the repository into a temporary checkout, updates the flake
+inputs there, builds the new system first, and switches only after a successful
+build. The generated lockfile is temporary and is not committed back to GitHub.
+This means `roo` follows current `nixpkgs` and Home Manager revisions without
+adding lockfile commits to this repository.
+
+Inspect or disable automatic deployment on `roo`:
+
+```sh
+systemctl list-timers roo-auto-upgrade.timer
+journalctl -u roo-auto-upgrade.service
+sudo systemctl disable --now roo-auto-upgrade.timer
+```
+
 For recovery-sensitive changes, use an exact commit on `roo`:
 
 ```sh
