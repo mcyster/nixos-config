@@ -1,0 +1,45 @@
+name: Check NixOS configuration
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check Nix syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r file; do
+            nix-instantiate --parse "$file" >/dev/null
+          done < <(git ls-files '*.nix')
+
+      - name: Check shell scripts
+        run: |
+          bash -n scripts/sync-moa-work-config
+          nix develop --command shellcheck scripts/sync-moa-work-config
+
+      - name: Run Nix lint checks
+        run: |
+          nix develop --command deadnix --fail
+          nix develop --command statix check
+
+      - name: Evaluate public hosts
+        run: |
+          # The moa configuration requires the private Extole module.
+          nix eval --raw .#nixosConfigurations.fox.config.system.build.toplevel.drvPath
+          nix eval --raw .#nixosConfigurations.roo.config.system.build.toplevel.drvPath

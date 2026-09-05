@@ -38,7 +38,7 @@ in
     serverProperties = {
       "server-port" = 25565;
       "motd" = "Kingdom4";
-      "online-mode" = false;
+      "online-mode" = true;
       "level-name" = "world1";
       "view-distance" = 10;
       "enable-command-block" = true;
@@ -58,33 +58,7 @@ in
     ];
   };
 
+  systemd.services.minecraft-server.wantedBy = lib.mkForce [ ];
+
   networking.firewall.allowedUDPPorts = [ 24454 ];
-
-  systemd.timers.minecraft-server-start = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "*-*-* 18:00:00";
-      Persistent = true;
-    };
-  };
-
-  systemd.services.minecraft-server-start = {
-    script = ''
-      ${pkgs.systemd}/bin/systemctl start minecraft-server.service
-    '';
-  };
-
-  systemd.timers.minecraft-server-stop = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "*-*-* 21:30:00";
-      Persistent = true;
-    };
-  };
-
-  systemd.services.minecraft-server-stop = {
-    script = ''
-      ${pkgs.systemd}/bin/systemctl stop minecraft-server.service
-    '';
-  };
 }

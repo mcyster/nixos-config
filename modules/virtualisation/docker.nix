@@ -9,14 +9,12 @@ in
   config = lib.mkIf cfg.enable {
     virtualisation.docker.enable = true;
 
-    systemd.timers.docker-prune = {
-      description = "Prune Docker resources daily";
-      wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnCalendar = "daily";
-        Persistent = true;
-        RandomizedDelaySec = "1h";
-      };
+    virtualisation.docker.autoPrune = {
+      enable = true;
+      dates = "daily";
+      flags = [ "--all" ];
+      randomizedDelaySec = "1h";
+      persistent = true;
     };
   };
 }
