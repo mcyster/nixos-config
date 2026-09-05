@@ -10,6 +10,7 @@
   outputs = { self, nixpkgs, home-manager, ... }:
     let
       system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
       moaWorkModule = self.outPath + "/.private/moa/extole.nix";
 
       mkHost = modules:
@@ -30,6 +31,16 @@
             ++ modules;
         };
     in {
+      devShells.${system}.default = pkgs.mkShell {
+        packages = with pkgs; [
+          deadnix
+          nixfmt
+          shellcheck
+          shfmt
+          statix
+        ];
+      };
+
       nixosConfigurations = {
         fox = mkHost [ ./hosts/fox/configuration.nix ];
         moa = mkHost [
