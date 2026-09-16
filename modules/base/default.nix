@@ -19,5 +19,13 @@
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
+
+    # direnv's per-directory approval is keyed on the .envrc path, so every new
+    # git worktree needs another `direnv allow`. Trust our own home directories
+    # instead: any .envrc under them loads without prompting.
+    settings.whitelist.prefix = [
+      "/home/mcyster"
+      "/home/wal"
+    ];
   };
 }
