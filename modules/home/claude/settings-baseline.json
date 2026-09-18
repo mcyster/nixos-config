@@ -1,0 +1,48 @@
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "Bash",
+      "Edit(//home/mcyster/**)",
+      "Read(//home/mcyster/**)",
+      "Write(//home/mcyster/**)",
+      "mcp__atlassian-rovo",
+      "mcp__aws",
+      "mcp__aws-documentation",
+      "mcp__extole",
+      "mcp__grafana",
+      "mcp__grafana-tempo-ai",
+      "mcp__intercom",
+      "mcp__kubernetes-mcp-server",
+      "mcp__langfuse",
+      "mcp__lovable",
+      "mcp__pagerduty-mcp",
+      "mcp__sentry",
+      "mcp__unblocked"
+    ],
+    "deny": [
+      "Read(//home/mcyster/.aws)",
+      "Read(//home/mcyster/.aws/**)",
+      "Read(//home/mcyster/.ssh)",
+      "Read(//home/mcyster/.ssh/**)",
+      "Read(//home/mcyster/secrets)",
+      "Read(//home/mcyster/secrets/**)",
+      "Edit(//home/mcyster/.aws/**)",
+      "Edit(//home/mcyster/.ssh/**)",
+      "Edit(//home/mcyster/secrets/**)",
+      "Write(//home/mcyster/.aws/**)",
+      "Write(//home/mcyster/.ssh/**)",
+      "Write(//home/mcyster/secrets/**)"
+    ],
+    "additionalDirectories": [
+      "/home/mcyster"
+    ]
+  },
+  "model": "opus",
+  "skipDangerousModePermissionPrompt": true,
+  "enableAllProjectMcpServers": true,
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  }
+}
