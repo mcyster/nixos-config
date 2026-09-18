@@ -25,6 +25,7 @@
               ./modules/desktop/audio.nix
               ./modules/dev
               ./modules/games
+              ./modules/services/netwatch.nix
               ./modules/services/tailscale.nix
               ./modules/virtualisation/docker.nix
             ]

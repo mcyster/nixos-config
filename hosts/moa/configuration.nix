@@ -135,5 +135,17 @@ in
     desktop.enable = true;
     dev.enable = true;
     virtualisation.docker.enable = true;
+
+    services.netwatch = {
+      enable = true;
+      wireguardInterfaces = [ "vpn-prod" "vpn-dev" ];
+      # Outward from this host: our router, the AT&T residential gateway it
+      # sits behind, then AT&T's first network hop.
+      hops = {
+        router = "192.168.50.1";
+        modem = "192.168.1.254";
+        isp = "107.142.32.1";
+      };
+    };
   };
 }

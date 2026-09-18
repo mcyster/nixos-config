@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# Report ASUS router WAN-port (eth0) link drops.
+#
+# The router's syslog is the authoritative record of WAN link flapping: each
+# drop logs "Link DOWN" followed by "Link Up at <speed>". A healthy link should
+# show none of these for days at a time.
+#
+# Credentials: OFFICE_ASUS_PASSWORD, taken from the environment, or sourced
+# from ~/.env (which lives outside this repo) when unset.
+
+set -euo pipefail
+
+ROUTER="${ROUTER:-192.168.50.1}"
+ROUTER_USER="${ROUTER_USER:-admin}"
+ENV_FILE="${ENV_FILE:-$HOME/.env}"
+
+if [ -z "${OFFICE_ASUS_PASSWORD:-}" ]; then
+  if [ -r "$ENV_FILE" ]; then
+    # shellcheck disable=SC1090
+    OFFICE_ASUS_PASSWORD="$(sed -n 's/^[[:space:]]*\(export[[:space:]]\+\)\?OFFICE_ASUS_PASSWORD=//p' "$ENV_FILE" | tail -1 | sed -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'\$/\1/")"
+  fi
+fi
+
+if [ -z "${OFFICE_ASUS_PASSWORD:-}" ]; then
+  echo "OFFICE_ASUS_PASSWORD not set and not found in $ENV_FILE" >&2
+  exit 1
+fi
+
+auth="$(printf '%s:%s' "$ROUTER_USER" "$OFFICE_ASUS_PASSWORD" | base64 -w0)"
+
+# The router answers login.cgi with an HTML redirect and puts the session
+# token in a Set-Cookie header, so read the headers rather than the body.
+login_headers="$(curl -sS --max-time 20 -D - -o /dev/null \
+  -H "Referer: http://${ROUTER}/Main_Login.asp" \
+  -d "login_authorization=${auth}" \
+  "http://${ROUTER}/login.cgi")"
+
+token="$(printf '%s\n' "$login_headers" \
+  | sed -n 's/.*[Aa]sus_token=\([^;[:space:]]*\).*/\1/p' | tail -1)"
+
+if [ -z "$token" ]; then
+  echo "login to ${ROUTER} failed" >&2
+  exit 1
+fi
+
+syslog="$(curl -sS --max-time 40 \
+  -H "Referer: http://${ROUTER}/Main_LogStatus_Content.asp" \
+  -H "Cookie: asus_token=${token}" \
+  "http://${ROUTER}/appGet.cgi?hook=nvram_dump%28%22syslog.log%22%2C%22%22%29")"
+
+if [ -z "$syslog" ]; then
+  echo "could not retrieve syslog from ${ROUTER}" >&2
+  exit 1
+fi
+
+events="$(printf '%s\n' "$syslog" | grep -E 'eth0.*Link (DOWN|Up)' || true)"
+
+if [ -z "$events" ]; then
+  echo "No eth0 link events in the router's retained syslog."
+  exit 0
+fi
+
+echo "== WAN (eth0) link drops per day =="
+printf '%s\n' "$events" | grep 'Link DOWN' | awk '{print $1, $2}' \
+  | sort -k1,1M -k2,2n | uniq -c | awk '{printf "  %-10s %s\n", $2" "$3, $1}'
+
+echo
+echo "== Most recent events =="
+printf '%s\n' "$events" | tail -10 | sed 's/^/  /' \
+  | sed -E 's/kernel: eth0 \(.*phyId: [0-9]+\) //'
+
+echo
+last_down="$(printf '%s\n' "$events" | grep 'Link DOWN' | tail -1 | awk '{print $1" "$2" "$3}')"
+if [ -n "$last_down" ]; then
+  if last_epoch="$(date -d "$last_down" +%s 2>/dev/null)"; then
+    now_epoch="$(date +%s)"
+    mins=$(( (now_epoch - last_epoch) / 60 ))
+    echo "== Last WAN link drop: $last_down  (${mins} minutes ago) =="
+    if [ "$mins" -ge 180 ]; then
+      echo "   No drop in 3+ hours - link looks stable."
+    else
+      echo "   Still flapping (healthy baseline: no drops for days)."
+    fi
+  else
+    echo "== Last WAN link drop: $last_down =="
+  fi
+fi
