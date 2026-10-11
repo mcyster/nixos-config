@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, llm-agents, ... }:
 
 let
   poetryPackage = pkgs.poetry.overridePythonAttrs (old: {
@@ -91,6 +91,7 @@ in
     eclipses.eclipse-sdk
     # code-cursor
     claude-code
+    llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-desktop
     mdcat
     zoom-us
     nvd
