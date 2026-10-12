@@ -1,4 +1,153 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
+let
+  screenshotDbusAuditPython = pkgs.python3.withPackages (pythonPackages: [
+    pythonPackages.dbus-next
+  ]);
+  screenshotDbusAudit = pkgs.writeTextFile {
+    name = "screenshot-dbus-audit";
+    executable = true;
+    destination = "/bin/screenshot-dbus-audit";
+    text = ''
+      #!${screenshotDbusAuditPython}/bin/python3
+      import asyncio
+      import json
+      import os
+
+      from dbus_next import Message, MessageType
+      from dbus_next.aio import MessageBus
+
+
+      SCREENSHOT_INTERFACES = {
+          "org.gnome.Shell.Screenshot",
+          "org.freedesktop.portal.Screenshot",
+      }
+      MATCH_RULES = [
+          "type='method_call',interface='org.gnome.Shell.Screenshot'",
+          "type='method_call',interface='org.freedesktop.portal.Screenshot'",
+          (
+              "type='signal',sender='org.freedesktop.DBus',"
+              "interface='org.freedesktop.DBus',member='NameOwnerChanged'"
+          ),
+      ]
+
+
+      def executable(pid):
+          try:
+              return os.readlink(f"/proc/{pid}/exe")
+          except OSError:
+              return None
+
+
+      def process_identity(pid):
+          try:
+              stat = open(f"/proc/{pid}/stat", encoding="utf-8").read()
+              ppid = int(stat.rpartition(") ")[2].split()[1])
+          except (IndexError, OSError, ValueError):
+              ppid = None
+
+          return {
+              "pid": pid,
+              "executable": executable(pid),
+              "parent_pid": ppid,
+              "parent_executable": executable(ppid) if ppid is not None else None,
+          }
+
+
+      async def main():
+          resolver = await MessageBus().connect()
+          monitor = await MessageBus().connect()
+          identities = {}
+          resolutions = {}
+          loop = asyncio.get_running_loop()
+
+          async def resolve_sender(sender):
+              reply = await resolver.call(
+                  Message(
+                      destination="org.freedesktop.DBus",
+                      path="/org/freedesktop/DBus",
+                      interface="org.freedesktop.DBus",
+                      member="GetConnectionUnixProcessID",
+                      signature="s",
+                      body=[sender],
+                  )
+              )
+              identity = None
+              if reply.message_type == MessageType.METHOD_RETURN:
+                  identity = process_identity(reply.body[0])
+              identities[sender] = identity
+              return identity
+
+          def resolution_for(sender):
+              task = resolutions.get(sender)
+              if task is None:
+                  task = loop.create_task(resolve_sender(sender))
+                  resolutions[sender] = task
+              return task
+
+          def forget(sender):
+              identities.pop(sender, None)
+              resolutions.pop(sender, None)
+
+          async def log_screenshot_call(message):
+              identity = identities.get(message.sender)
+              if identity is None:
+                  try:
+                      identity = await resolution_for(message.sender)
+                  except Exception:
+                      identity = None
+
+              event = {
+                  "event": "screenshot-dbus-call",
+                  "interface": message.interface,
+                  "member": message.member,
+                  "sender": message.sender,
+              }
+              if identity is not None:
+                  event.update(identity)
+              print(json.dumps(event, sort_keys=True), flush=True)
+
+          def handle_message(message):
+              if (
+                  message.message_type == MessageType.SIGNAL
+                  and message.interface == "org.freedesktop.DBus"
+                  and message.member == "NameOwnerChanged"
+              ):
+                  name, old_owner, new_owner = message.body
+                  if name.startswith(":") and not old_owner and new_owner:
+                      resolution_for(name)
+                  elif name.startswith(":") and old_owner and not new_owner:
+                      loop.call_later(30, forget, name)
+              elif (
+                  message.message_type == MessageType.METHOD_CALL
+                  and message.interface in SCREENSHOT_INTERFACES
+              ):
+                  loop.create_task(log_screenshot_call(message))
+
+          monitor.add_message_handler(handle_message)
+          reply = await monitor.call(
+              Message(
+                  destination="org.freedesktop.DBus",
+                  path="/org/freedesktop/DBus",
+                  interface="org.freedesktop.DBus.Monitoring",
+                  member="BecomeMonitor",
+                  signature="asu",
+                  body=[MATCH_RULES, 0],
+              )
+          )
+          if reply.message_type == MessageType.ERROR:
+              raise RuntimeError(reply.error_name)
+
+          print(
+              json.dumps({"event": "screenshot-dbus-audit-started"}),
+              flush=True,
+          )
+          await asyncio.Future()
+
+
+      asyncio.run(main())
+    '';
+  };
+in
 {
   imports = [ ../claude ];
 
@@ -77,6 +226,21 @@
       command = "audio-toggle";
       binding = "<Super>q";
     };
+  };
+
+  systemd.user.services.screenshot-dbus-audit = {
+    Unit = {
+      Description = "Audit GNOME screenshot D-Bus calls";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = lib.getExe screenshotDbusAudit;
+      Restart = "always";
+      RestartSec = 2;
+      SyslogIdentifier = "screenshot-dbus-audit";
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
   };
 
   xdg.configFile."opencode/opencode.jsonc".text = ''
